@@ -1,0 +1,80 @@
+{
+	"info": {
+		"_postman_id": "c75990ec-034f-427e-9506-f61e6dee84ad",
+		"name": "Recipto Bulk User Management",
+		"description": "API collection for Bulk User Management Assignment. Includes Seed, Bulk Create, and Bulk Update endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Seed 5000 Random Users",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/users/seed?count=5000",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "users", "seed"],
+					"query": [
+						{
+							"key": "count",
+							"value": "5000",
+							"description": "Number of random users to generate and insert (default: 5000, max: 10000)"
+						}
+					]
+				},
+				"description": "Generates `count` random users (default 5000, max 10000) and inserts them using batched insertMany with ordered:false for maximum throughput.\n\nSchema fields generated:\n- fullName (String, trimmed, min 3 chars)\n- email (lowercase, unique)\n- phone (10-digit numeric, unique)\n- walletBalance (Number, min 0)\n- isBlocked (Boolean, ~5% chance true)\n- kycStatus (pending | approved | rejected)\n- deviceInfo.ipAddress\n- deviceInfo.deviceType (Mobile | Desktop)\n- deviceInfo.os (Android | iOS | Windows | macOS)"
+			},
+			"response": []
+		},
+		{
+			"name": "Bulk Create Users",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"fullName\": \"Test User One\",\n    \"email\": \"testuser1@recipto.com\",\n    \"phone\": \"1111111111\",\n    \"walletBalance\": 100,\n    \"kycStatus\": \"approved\",\n    \"deviceInfo\": {\n      \"ipAddress\": \"127.0.0.1\",\n      \"deviceType\": \"Desktop\",\n      \"os\": \"Windows\"\n    }\n  },\n  {\n    \"fullName\": \"Test User Two\",\n    \"email\": \"testuser2@recipto.com\",\n    \"phone\": \"2222222222\",\n    \"walletBalance\": 50,\n    \"kycStatus\": \"pending\",\n    \"deviceInfo\": {\n      \"ipAddress\": \"192.168.1.1\",\n      \"deviceType\": \"Mobile\",\n      \"os\": \"Android\"\n    }\n  }\n]",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users/bulk-create",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "users", "bulk-create"]
+				},
+				"description": "Manually insert an array of users. All main schema fields are validated before insertion."
+			},
+			"response": []
+		},
+		{
+			"name": "Bulk Update Users",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"phone\": \"1111111111\",\n    \"walletBalance\": 999.99,\n    \"isBlocked\": false,\n    \"kycStatus\": \"approved\"\n  },\n  {\n    \"phone\": \"2222222222\",\n    \"walletBalance\": 0,\n    \"isBlocked\": true,\n    \"kycStatus\": \"rejected\"\n  }\n]",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users/bulk-update",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "users", "bulk-update"]
+				},
+				"description": "Bulk update user records. Each object MUST contain `phone` as the unique identifier. Uses MongoDB bulkWrite() with ordered:false for performance."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:4000",
+			"type": "string"
+		}
+	]
+}
